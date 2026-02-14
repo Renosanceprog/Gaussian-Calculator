@@ -2,21 +2,24 @@
 #include <stdio.h>
 #include <math.h>
 
-#define GySIZE 3
-#define GxSIZE 4
+#define GySIZE 4
+#define GxSIZE 5
 
 void printmatrix();
+void printsolutions();
 void fwdElimination();
 void revSubstitution();
 int Determinant();
 int rowSwap(int h);
 
 float UniqueEqns[GySIZE];
-float matrix[3][4] = {
-    { 1.0, -1.0,  2.0,   4.0},
-    { 0.0,  1.0,  3.0,   5.0}, // A normal, valid row
-    { 2.0, -2.0,  4.0,   8.0}  // <--- The copycat (2 * Row1)
+float matrix[4][5] = {
+    { 1.0,  2.0,  1.0,  0.0,   5.0},
+    { 0.0,  1.0,  0.0,  1.0,   2.0},
+    { 0.0,  0.0,  1.0,  1.0,   3.0},
+    { 1.0,  3.0,  1.0,  1.0,   7.0}  // This is (R1 + R2)
 };
+
 int main(){
     printmatrix();
     fwdElimination();
@@ -35,9 +38,7 @@ int main(){
     else
     {
         revSubstitution();
-        printf("z = %5.2f\n", UniqueEqns[2]);
-        printf("y = %5.2f\n", UniqueEqns[1]);
-        printf("x = %5.2f\n", UniqueEqns[0]);
+        printsolutions();
     }
 
     return 0;
@@ -58,6 +59,15 @@ void printmatrix(){
         printf("\n");
     }
     printf("\n");
+}
+
+void printsolutions(){
+    int i2 = 0;
+    for (int i = GySIZE-1; i >= 0; i--)
+    {
+        printf("%c = %6.2f\n", 122-i, UniqueEqns[i2]);
+        i2++;
+    }
 }
 
 int Determinant(){
