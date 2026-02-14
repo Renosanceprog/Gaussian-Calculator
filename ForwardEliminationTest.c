@@ -7,17 +7,16 @@
 
 void printmatrix();
 void fwdElimination();
+void revSubstitution();
 int Determinant();
 int rowSwap(int h);
 
-
-
+float UniqueEqns[GySIZE];
 float matrix[3][4] = {
-    { 1.0,  1.0,  1.0,   4.0},
-    { 2.0,  2.0,  2.0,  10.0}, // <--- The culprit (2 * Row1 = 8, not 10)
-    { 0.0,  1.0, -1.0,   3.0}
+    { 1.0, -1.0,  2.0,   4.0},
+    { 0.0,  1.0,  3.0,   5.0}, // A normal, valid row
+    { 2.0, -2.0,  4.0,   8.0}  // <--- The copycat (2 * Row1)
 };
-
 int main(){
     printmatrix();
     fwdElimination();
@@ -33,6 +32,14 @@ int main(){
             printf("This matrix has INFINITE Solutions\n");
         }
     }
+    else
+    {
+        revSubstitution();
+        printf("z = %5.2f\n", UniqueEqns[2]);
+        printf("y = %5.2f\n", UniqueEqns[1]);
+        printf("x = %5.2f\n", UniqueEqns[0]);
+    }
+
     return 0;
 }
 
@@ -41,12 +48,12 @@ void printmatrix(){
     {
         for (size_t j = 0; j < GxSIZE; j++)
         {   
-            if (j == 3)
+            if (j == GxSIZE-1)
             {
                 printf("| ");
             }
             
-            printf("%5.2f  ",matrix[i][j]);
+            printf("%6.2f  ",matrix[i][j]);
         }
         printf("\n");
     }
@@ -85,7 +92,7 @@ void fwdElimination(){
         {
             rowSwap(h);
         }
-        
+
         float pvt1 = matrix[h][h];
         for (size_t i = h + 1; i < GySIZE; i++)
         {
@@ -97,4 +104,18 @@ void fwdElimination(){
             }
         }
     }
+}
+
+void revSubstitution(){
+    for (int i = GySIZE-1; i >= 0 ; i--)
+    {
+        float bucket = matrix[i][GxSIZE-1];
+        float total;
+        for (int j = i + 1; j < GySIZE; j++)
+        {
+            bucket = bucket - (matrix[i][j] * UniqueEqns[j]);
+        }
+        UniqueEqns[i] = bucket / matrix[i][i];
+    }
+
 }
