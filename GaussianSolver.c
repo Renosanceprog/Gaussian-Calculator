@@ -1,4 +1,4 @@
-//
+// GAUSSIAN SOLVER
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
@@ -6,22 +6,69 @@
 #define MatrixMax 100
 float matrix[MatrixMax][MatrixMax+1];
 float UniqueEqns[MatrixMax];
-int GySIZE, GxSIZE, swapTally = 0;
+int GySIZE = 0, GxSIZE = 0, swapTally = 0;
 
-void printmatrix();
-void printsolutions();
-void header();
-void print_grid(int current_r, int current_c);
-int fwdElimination();
-void revSubstitution();
+int main();
+    void Choice_inputmatrix();
+    int Choice_editmatrix();
+        void Edit_choiceDimes();
+        void Edit_choiceValues();
+    void Choice_demomatrices();
+
 void comp_execution();
-float Determinant();
-int rowSwap(int h);
+    void printmatrix();
+    int fwdElimination();
+        int rowSwap(int h);
+    float Determinant();
+    void revSubstitution();
+    void printsolutions();
+
+void header();
+void print_grid(int current_r, int current_c, int mode);
 int validinput();
 float Fvalidinput();
 
 int main(){
-    header();
+    while (1)
+    {
+        header();
+        printf("[1] Input new Matrix\n[2] Edit Matrix\n[3] Demo Matrices \n[4] Run Calculations\n[5] Exit\nSelect: ");
+        switch (validinput())
+        {
+        case 1:
+            Choice_inputmatrix();
+            header();
+            print_grid(GySIZE, GxSIZE, 1);
+            system("pause");
+            header();
+            comp_execution();
+            system("pause");
+            break;
+        case 2:
+            Choice_editmatrix();
+            break;
+        case 3:
+            /* code */
+            break;
+        case 4:
+            comp_execution();
+            system("pause");
+            break;
+        case 5:
+            printf("Exiting program...\n");
+            system("pause");
+            return 0;
+            break;
+        default:
+            printf("Invalid choice, Select from 1-5.\n");
+            system("pause");
+            break;
+        }
+    }
+}
+
+void Choice_inputmatrix(){
+    printf("\n");
     printf("Enter # of Equations: ");
     GySIZE = validinput();
     printf("Enter # of Variables (including constants): ");
@@ -29,8 +76,12 @@ int main(){
     for (int i = 0; i < GySIZE; i++) {
         for (int j = 0; j < GxSIZE; j++) { // Loop 4 times (x,y,z, constant)
             header();
-            printf("Enter values (x, y, z | constant):\n\n");
-            print_grid(i, j);
+            printf("Enter values (");
+            for (int v = GySIZE-1; v >=0; v--){
+                printf("%c, ", 'z'-v);
+            }
+            printf("| constant):\n");
+            print_grid(i, j, 1);
             
             if (j < 3) printf("\nEnter Coeff [%d][%d]: ", i+1, j+1);
             else       printf("\nEnter Constant for Row %d: ", i+1);
@@ -38,15 +89,121 @@ int main(){
             matrix[i][j] = Fvalidinput();
         }
     }
-    header();
-    printf("\n");
-    print_grid(GySIZE, GxSIZE);
-    printf("\n");
-    system("pause");
-    header();
-    comp_execution();
-    return 0;
 }
+
+int Choice_editmatrix(){
+    if (GxSIZE == 0 || GySIZE == 0)
+    {
+        printf("\nUser has not input a matrix yet, choose [1] on the next prompt and try again later.\n");
+        system("pause");
+        return 1;
+    }
+    while (1)
+    {
+        header();
+        printmatrix();
+        printf("[1] Edit Dimensions\n[2] Edit Values\n[3] Return to Main Menu\nSelect: ");
+        switch (validinput())
+        {
+        case 1:
+            Edit_choiceDimes();
+            break;
+        case 2:
+            Edit_choiceValues();
+            break;
+        case 3:
+            return 0;
+            break;
+        default:
+            printf("Invalid choice, Select from 1-3.\n");
+            system("pause");
+            break;
+        }
+    }
+}
+
+void Edit_choiceDimes(){
+    printf("[1] Edit Dimension Values\n[2] Add Equations (Rows)\n[3] Add Variables (Columns)\nSelect: ");
+    switch (validinput())
+    {
+    case 1:
+        printf("Enter # of Equations: ");
+        GySIZE = validinput();
+        printf("Enter # of Variables (including constants): ");
+        GxSIZE = validinput();
+        break;
+    case 2:
+        printf("Enter # of Equations to add: ");
+        int y_add = validinput();
+        GySIZE += y_add;
+        break;
+    case 3:
+        printf("Enter # of Variables to add: ");
+        int x_add = validinput();
+        GxSIZE += x_add;
+        break;
+    default:
+        printf("Invalid choice, Select from 1-3 later.\n");
+        break;
+    }
+
+}
+void Edit_choiceValues(){
+    int X_index, Y_index;
+    print_grid(GySIZE, GxSIZE, 1);
+    printf("\nNote matrix index starts at [1][1]\n");
+    while (1)
+    {
+        header();
+        print_grid(GySIZE, GxSIZE, 1);
+        printf("Enter # i: ");
+        Y_index = validinput();
+        Y_index -= 1;
+        if (Y_index < 0 || Y_index > GySIZE-1)
+        {
+            printf("Cannot Access value outside matrix dimension.\n");
+            system("pause");
+        }
+        else
+        {
+            break;
+        }
+    }
+    while (1)
+    {
+        header();
+        print_grid(GySIZE, GxSIZE, 1);
+        printf("Enter # j: ");
+        X_index = validinput();
+        X_index -= 1;
+        if (X_index < 0 || X_index > GxSIZE-1)
+        {
+            printf("Cannot Access value outside matrix dimension.\n");
+            system("pause");
+        }
+        else
+        {
+            break;
+        }
+    }
+    header();
+    printf("Enter values (");
+    for (int v = GySIZE-1; v >=0; v--){
+        printf("%c, ", 'z'-v);
+    }
+    printf("| constant):\n");
+    print_grid(Y_index, X_index, 2);
+    if (X_index < 3) printf("\nEnter Coeff [%d][%d]: ", Y_index+1, X_index+1);
+    else       printf("\nEnter Constant for Row %d: ", Y_index+1);
+    matrix[Y_index][X_index] = Fvalidinput();
+    header();
+    print_grid(GySIZE, GxSIZE, 1);
+}
+
+void Choice_demomatrices(){
+
+}
+
 void header(){
     system("cls");
     printf("==== Gaussian Solver ====\n");
@@ -75,6 +232,42 @@ void comp_execution(){
     }
 
 }
+
+void print_grid(int current_r, int current_c, int mode) {
+    printf("\n");
+        for(int r = 0; r < GySIZE; r++) {
+            printf("  [ ");
+            for(int c = 0; c < GxSIZE; c++) {
+                // Separator for the constant column
+                if (c == GxSIZE-1) printf("| "); 
+                if (mode == 1)
+                {
+                    if(r < current_r || (r == current_r && c < current_c)) {
+                        printf("%6.2f ", matrix[r][c]); // Already entered
+                    }
+                    else if(r == current_r && c == current_c) {
+                        printf("%6c ", '?'); // Cursor
+                    }
+                    else {
+                        printf("%6c ", '.'); // Future
+                }
+                }
+                else if (mode == 2) // edit mode
+                {
+                    if(r == current_r && c == current_c) { // replaces chosen index with ?
+                        printf("%6c ", '?'); // Cursor
+                    }
+                    else {
+                        printf("%6.2f ", matrix[r][c]); // Already entered
+                    }
+                }
+                
+            }
+            printf("]\n");
+        }
+    printf("\n");
+}
+
 void printmatrix(){
     for (size_t i = 0; i < GySIZE; i++)
     {
@@ -100,28 +293,7 @@ void printsolutions(){
         i2++;
     }
     int det = Determinant();
-    printf("\nDeterminant = %d", det);
-}
-
-void print_grid(int current_r, int current_c) {
-    for(int r = 0; r < GySIZE; r++) {
-        printf("  [ ");
-        for(int c = 0; c < GxSIZE; c++) {
-            // Separator for the constant column
-            if (c == GxSIZE-1) printf("| "); 
-            
-            if(r < current_r || (r == current_r && c < current_c)) {
-                printf("%6.2f ", matrix[r][c]); // Already entered
-            }
-            else if(r == current_r && c == current_c) {
-                printf("%6c ", '?'); // Cursor
-            }
-            else {
-                printf("%6c ", '.'); // Future
-            }
-        }
-        printf("]\n");
-    }
+    printf("\nDeterminant = %d\n", det);
 }
 
 float Determinant(){
