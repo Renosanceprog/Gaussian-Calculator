@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
+#include <conio.h>
 
 #define MatrixMax 100
 float matrix[MatrixMax][MatrixMax+1];
@@ -14,8 +15,9 @@ int main();
         void Edit_choiceDimes();
         void Edit_choiceValues();
     void Choice_demomatrices();
+        void LoadDemo(int page);
 
-void comp_execution();
+int comp_execution();
     void printmatrix();
     int fwdElimination();
         int rowSwap(int h);
@@ -48,9 +50,10 @@ int main(){
             Choice_editmatrix();
             break;
         case 3:
-            /* code */
+            Choice_demomatrices();
             break;
         case 4:
+            system("cls");
             comp_execution();
             system("pause");
             break;
@@ -202,10 +205,148 @@ void Edit_choiceValues(){
 }
 
 void Choice_demomatrices(){
+    int page = 0;
+    const int MAX_PAGES = 5; // Total number of demos (0 to 3)
 
+    // Load the first page immediately so the user sees something
+    LoadDemo(page); 
+
+    while (1) {
+        header();
+        printf("==== DEMO PREVIEW (Page %d / %d) ====\n\n", page + 1, MAX_PAGES);
+        switch (page)
+        {
+        case 0:
+            printf("==== 3x3 System With Unique Solutions ====\n\n");
+            break;
+        case 1:
+            printf("==== 3x3 System With No Solutions ====\n\n");
+            break;
+        case 2:
+            printf("==== 3x3 System With Infinite Solutions ====\n\n");
+            break;
+        case 3:
+            printf("==== 4x4 System ====\n\n");
+            break;
+        case 4:
+            printf("==== 5x5 System ====\n\n");
+            break;
+        }
+        // Use your existing function to show the current "preview"
+        printmatrix(); 
+
+        printf("\n----------------------------------------\n");
+        
+        // Navigation UI
+        if (page > 0)             printf("[1] < PREV   ");
+        else                      printf("             "); // Spacer
+        
+        printf("[2] SELECT");
+        
+        if (page < MAX_PAGES - 1) printf("   [3] NEXT >");
+        else                      printf("             "); // Spacer
+
+        printf("\n\n[ESC] Cancel / Return to Menu\n");
+
+        // INSTANT INPUT (No Enter Key needed)
+        char key = _getch(); 
+
+        if (key == '1') {
+            if (page > 0) {
+                page--;
+                LoadDemo(page); // Reloads global matrix with new page data
+            }
+        }
+        else if (key == '3') {
+            if (page < MAX_PAGES - 1) {
+                page++;
+                LoadDemo(page);
+            }
+        }
+        else if (key == '2') {
+            printf("\nMatrix Loaded Successfully!\n");
+            system("pause"); // Small pause for effect
+            return;   // Exits function, keeping the current data in Global Matrix
+        }
+        else if (key == 27) { // 27 is the ASCII code for ESC
+            // For now, let's just return.
+            GySIZE = 0; GxSIZE = 0;
+            return;
+        }
+    }
 }
 
-void comp_execution(){
+void LoadDemo(int page) {
+    // RESET the matrix first
+    for(int i=0; i<MatrixMax; i++) 
+        for(int j=0; j<MatrixMax+1; j++) matrix[i][j] = 0.0;
+
+    switch (page) {
+        case 0: // PAGE 1: Unique Solution (3x3)
+            GySIZE = 3; GxSIZE = 4;
+            float p1[3][4] = {
+                { 0.0,  2.0,  1.0,   7.0}, 
+                { 1.0,  1.0,  1.0,   6.0}, 
+                { 3.0,  2.0, -1.0,   4.0}
+            };
+            // Copy to global
+            for(int i=0; i<3; i++) 
+                for(int j=0; j<4; j++) matrix[i][j] = p1[i][j];
+            break;
+
+        case 1: // PAGE 2: No Solution (3x3)
+            GySIZE = 3; GxSIZE = 4;
+            float p2[3][4] = {
+                { 1.0,  1.0,  1.0,   6.0}, 
+                { 2.0,  2.0,  2.0,  12.0}, 
+                { 2.0,  2.0,  2.0,  20.0} 
+            };
+            for(int i=0; i<3; i++) 
+                for(int j=0; j<4; j++) matrix[i][j] = p2[i][j];
+            break;
+
+        case 2: // PAGE 3: Infinite Solutions (3x3)
+            GySIZE = 3; GxSIZE = 4;
+            float p3[3][4] = {
+                { 1.0,  2.0,  3.0,  14.0}, 
+                { 1.0, -1.0,  1.0,   6.0}, 
+                { 2.0,  1.0,  4.0,  20.0} 
+            };
+            for(int i=0; i<3; i++) 
+                for(int j=0; j<4; j++) matrix[i][j] = p3[i][j];
+            break;
+        case 3: // PAGE 4: Large System (5x5)
+            GySIZE = 4; GxSIZE = 5;
+            float p4[4][5] = {
+                { 1.0,  1.0,  1.0,  1.0,   10.0}, // w + x + y + z = 10
+                { 1.0, -1.0,  2.0,  0.0,    5.0}, // w - x + 2y = 5
+                { 0.0,  1.0, -1.0,  3.0,   11.0}, // x - y + 3z = 11
+                { 2.0,  2.0,  0.0, -1.0,    2.0}  // 2w + 2x - z = 2
+            };
+            for(int i=0; i<4; i++) 
+                for(int j=0; j<5; j++) matrix[i][j] = p4[i][j];
+            break;
+        case 4: // PAGE 4: Large System (5x5)
+            GySIZE = 5; GxSIZE = 6;
+            float p5[5][6] = {
+                { 5.0,  1.0,  1.0,  1.0,  1.0,   19.0},
+                { 1.0,  5.0,  1.0,  1.0,  1.0,   23.0},
+                { 1.0,  1.0,  5.0,  1.0,  1.0,   27.0},
+                { 1.0,  1.0,  1.0,  5.0,  1.0,   31.0},
+                { 1.0,  1.0,  1.0,  1.0,  5.0,   35.0} 
+            };
+            for(int i=0; i<5; i++) 
+                for(int j=0; j<6; j++) matrix[i][j] = p5[i][j];
+            break;
+    }
+}
+
+int comp_execution(){
+    if (GxSIZE == 0 || GySIZE == 0)
+    {
+        printf("\nUser has not input a matrix yet, choose [1] on the next prompt and try again later.\n");
+        return 1;
+    }
     printf("==== Raw Matrix ====\n");
     printmatrix();
     fwdElimination();

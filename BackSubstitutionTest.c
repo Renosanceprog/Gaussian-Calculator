@@ -51,5 +51,4 @@ void revSubstitution(){
         }
         UniqueEqns[i] = bucket / matrix[i][i];
     }
-    
 }
