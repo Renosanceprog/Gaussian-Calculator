@@ -148,6 +148,7 @@ void Edit_choiceDimes(){
     }
 
 }
+
 void Edit_choiceValues(){
     int X_index, Y_index;
     print_grid(GySIZE, GxSIZE, 1);
@@ -204,10 +205,6 @@ void Choice_demomatrices(){
 
 }
 
-void header(){
-    system("cls");
-    printf("==== Gaussian Solver ====\n");
-}
 void comp_execution(){
     printf("==== Raw Matrix ====\n");
     printmatrix();
@@ -230,7 +227,108 @@ void comp_execution(){
         revSubstitution();
         printsolutions();
     }
+}
 
+void printmatrix(){
+    for (size_t i = 0; i < GySIZE; i++)
+    {
+        for (size_t j = 0; j < GxSIZE; j++)
+        {   
+            if (j == GxSIZE-1)
+            {
+                printf("| ");
+            }
+            
+            printf("%6.2f  ",matrix[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+int fwdElimination(){
+    for (size_t h = 0; h < GySIZE - 1; h++)
+    {
+        if (fabs(matrix[h][h]) < 1e-6)
+        {
+            rowSwap(h);
+        }
+
+        float pvt1 = matrix[h][h];
+        for (size_t i = h + 1; i < GySIZE; i++)
+        {
+            float pvt2 = matrix[i][h];
+            if (pvt2 == 0 && pvt1 == 0)
+            {
+                printf("cannot calculate Partial REF due to division by 0.\n");
+                return 1;
+            }
+            
+            float ratio = pvt2 / pvt1;
+            for (size_t j = 0; j < GxSIZE; j++)
+            {   
+                matrix[i][j] = matrix[i][j] - (ratio * matrix[h][j]);
+            }
+        }
+    }
+    return 0;
+}
+
+int rowSwap(int h){
+    swapTally++;
+    for (size_t i = h + 1; i < GySIZE; i++)
+    {
+        if (fabs(matrix[i][h]) > 1e-6)
+        {
+            for (size_t j = 0; j < GxSIZE; j++)
+            {
+                float temp = matrix[h][j];
+                matrix[h][j] = matrix[i][j];
+                matrix[i][j] = temp;
+            }
+            break;
+        }
+    }
+}
+
+float Determinant(){
+    float Det = 1;
+    for (size_t i = 0; i < GySIZE; i++)
+    {
+        Det = Det * matrix[i][i];
+    }
+    Det = Det * pow(-1, swapTally);
+    return Det;
+}
+
+void revSubstitution(){
+    for (int i = GySIZE-1; i >= 0 ; i--)
+    {
+        float bucket = matrix[i][GxSIZE-1];
+        float total;
+        for (int j = i + 1; j < GySIZE; j++)
+        {
+            bucket = bucket - (matrix[i][j] * UniqueEqns[j]);
+        }
+        UniqueEqns[i] = bucket / matrix[i][i];
+    }
+
+}
+
+void printsolutions(){
+    int i2 = 0;
+    for (int i = GySIZE-1; i >= 0; i--)
+    {
+        printf("%c = %6.2f\n", 122-i, UniqueEqns[i2]);
+        i2++;
+    }
+    int det = Determinant();
+    printf("\nDeterminant = %d\n", det);
+}
+
+void header(){
+    system("cls");
+    printf("==== Gaussian Solver ====\n");
 }
 
 void print_grid(int current_r, int current_c, int mode) {
@@ -268,103 +366,6 @@ void print_grid(int current_r, int current_c, int mode) {
     printf("\n");
 }
 
-void printmatrix(){
-    for (size_t i = 0; i < GySIZE; i++)
-    {
-        for (size_t j = 0; j < GxSIZE; j++)
-        {   
-            if (j == GxSIZE-1)
-            {
-                printf("| ");
-            }
-            
-            printf("%6.2f  ",matrix[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
-void printsolutions(){
-    int i2 = 0;
-    for (int i = GySIZE-1; i >= 0; i--)
-    {
-        printf("%c = %6.2f\n", 122-i, UniqueEqns[i2]);
-        i2++;
-    }
-    int det = Determinant();
-    printf("\nDeterminant = %d\n", det);
-}
-
-float Determinant(){
-    float Det = 1;
-    for (size_t i = 0; i < GySIZE; i++)
-    {
-        Det = Det * matrix[i][i];
-    }
-    Det = Det * pow(-1, swapTally);
-    return Det;
-}
-
-int rowSwap(int h){
-    swapTally++;
-    for (size_t i = h + 1; i < GySIZE; i++)
-    {
-        if (fabs(matrix[i][h]) > 1e-6)
-        {
-            for (size_t j = 0; j < GxSIZE; j++)
-            {
-                float temp = matrix[h][j];
-                matrix[h][j] = matrix[i][j];
-                matrix[i][j] = temp;
-            }
-            break;
-        }
-    }
-}
-
-int fwdElimination(){
-    for (size_t h = 0; h < GySIZE - 1; h++)
-    {
-        if (fabs(matrix[h][h]) < 1e-6)
-        {
-            rowSwap(h);
-        }
-
-        float pvt1 = matrix[h][h];
-        for (size_t i = h + 1; i < GySIZE; i++)
-        {
-            float pvt2 = matrix[i][h];
-            if (pvt2 == 0 && pvt1 == 0)
-            {
-                printf("cannot calculate Partial REF due to division by 0.\n");
-                return 1;
-            }
-            
-            float ratio = pvt2 / pvt1;
-            for (size_t j = 0; j < GxSIZE; j++)
-            {   
-                matrix[i][j] = matrix[i][j] - (ratio * matrix[h][j]);
-            }
-        }
-    }
-    return 0;
-}
-
-void revSubstitution(){
-    for (int i = GySIZE-1; i >= 0 ; i--)
-    {
-        float bucket = matrix[i][GxSIZE-1];
-        float total;
-        for (int j = i + 1; j < GySIZE; j++)
-        {
-            bucket = bucket - (matrix[i][j] * UniqueEqns[j]);
-        }
-        UniqueEqns[i] = bucket / matrix[i][i];
-    }
-
-}
-
 int validinput(){
     int valid = 0;
     int input;
@@ -379,6 +380,7 @@ int validinput(){
     } while (!valid);
     return input;
 }
+
 float Fvalidinput(){
     int valid = 0;
     float input;
